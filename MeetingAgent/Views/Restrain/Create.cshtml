@@ -1,0 +1,240 @@
+﻿@using MeetingAgent.Models
+@model MeetingAgent.rst_restrain
+@{
+    ViewBag.Title = "Krijo Restrain";
+}
+<script src="@Url.Content("~/Scripts/Restrain/Restrain.js")" type="text/javascript" defer="defer"></script>
+
+<style>
+
+    .k-widget.k-datepicker {
+        height: 52px !important;
+    }
+
+    span .k-picker-wrap {
+        background: transparent !important;
+    }
+
+    span.k-widget.k-datepicker.k-header.form-control {
+
+        margin-bottom: 0 !important;
+        border: none !important;
+
+    }
+
+    span.k-picker-wrap.k-state-default{
+        height: 53px !important;
+    } 
+    
+    input#RestrainDate.form-control.k-input {
+        height: 45px !important;
+        width: 100% !important;
+        background: transparent;
+        border: 0px !important;
+        border-radius: 0px !important;
+        color: #ddd !important;
+        margin-bottom: 0 !important;
+        font-size: 20px !important;
+    }
+
+    .k-widget .k-select {
+        background: white !important;
+        border-radius: 0px !important;
+    }
+
+    input#starting_hour {
+        width: 100%;
+        height: 24px;
+        border: 0;
+    }
+
+</style>
+
+
+
+<!-- =========================
+      FAQ SECTION
+  ============================== -->
+<section id="faq" class="parallax-section">
+    <div class="container">
+        <div class="row">
+
+            <!-- Section title
+            ================================================== -->
+            <div class="wow bounceIn col-md-offset-2 col-md-8 col-sm-offset-1 col-sm-10 text-center">
+                <div class="section-title">
+                    <h2>Ditet qe kufizoni per Takime</h2>
+                    <p>Ne kete pjese do te gjeni listen me te gjitha kufizmet qe keni vendosur. Data pushimesh, lejesh, shetitje apo piknik. Mund ta mbani edhe si nje miniditar pune, me evenimente dhe angazhime qe keni pasur nder muaj. ASKUSH PREJ KOLEGEVE NUK MUND TI SHOH!</p>
+                </div>
+            </div>
+
+            <div class="wow fadeInUp col-md-offset-1 col-md-10 col-sm-offset-1 col-sm-10" data-wow-delay="0.9s">
+                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="headingOne">
+                            <h4 class="panel-title">
+                                <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    Lista e Kufizimeve
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                            <div class="panel-body">
+
+
+                                @(Html.Kendo().Grid<rst_restrain>()
+                .Name("RestrainList")
+                .Columns(columns =>
+                {
+                    columns.Bound(p => p.id).Title("Id").Hidden();
+                    columns.Bound(p => p.date).Title("Data e Kufizuar").Format("{0:dd/MM/yyyy}");
+                    // columns.Bound(p => p.all_day).Title("Gjithë ditën?");
+                    columns.Bound(p => p.reason).Title("Komente");
+                    columns.Bound(p => p.starting_hour).Title("Ora e Fillimit").Hidden();
+                    columns.Bound(p => p.ending_hour).Title("Ora e Mbarimit").Hidden();
+
+
+
+                })
+
+                .NoRecords(nor => nor.Template("<div class='empty-grid'></div>"))
+                .Navigatable(nvg => nvg.Enabled(true))
+                 .ClientDetailTemplateId("template2")
+                .Resizable(res => res.Columns(true))
+                .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .PageSize(20)
+                    .Read(read => read.Action("GetRestrain", "Restrain"))
+                    .Sort(sort => { sort.Add(p => p.id).Descending(); })
+                    .Model(model =>
+                    {
+                        model.Id(p => p.id);
+                    })
+                    .ServerOperation(true)
+
+                    )
+
+
+                                )
+
+
+
+                                <script id="template2" type="text/kendo-tmpl">
+                        @(Html.Kendo().TabStrip()
+                                .Name("tabStrip_#=id#")
+                                .SelectedIndex(0)
+                                .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+                                .Items(items =>
+                                {
+                                    items.Add().Text(" #= dateformat(date)  #").Content(
+                                    "<div class='custom-template'>" +
+                                        "<div class='row no-margin'>" +
+                                            "<div class='col-xs-11'>" +
+
+                                                "<div class='row'><label class='col-xs-6'></label></div>" +
+                                                "<div class='row'><label class='col-xs-6'>Ora e Fillimit :</label><span>#= timeformat(starting_hour) #</span></div>" +
+                                                "<div class='row'><label class='col-xs-6'>Ora e mbarimit :</label><span> #= timeformat(ending_hour)  #</span></div>" +
+                                                "<div class='row'><label class='col-xs-6'>Gjithe Diten? :</label><span>#= checkDay(all_day) #</span></div>" +
+
+                                            "</div>" +
+
+                                        "</div>" +
+                                    "</div>"
+                                    );
+                                })
+                        .ToClientTemplate())
+                    </script>
+
+                            
+                            </div>
+                        </div>
+                    </div>
+
+                   
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- =========================
+   REGISTER SECTION
+============================== -->
+
+@using (Html.BeginForm("Create", "Restrain", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+
+<section id="register" class="parallax-section">
+    <div class="container">
+        <div class="row">
+
+            <div class="wow fadeInUp col-md-7 col-sm-7" data-wow-delay="0.6s">
+                <h2>Don't Be Busy, Be Productive</h2>
+                <h3>Success is no accident. It is hardwork,peserverance,learning,studing,sacrifice and most of all, love for what you are doing or learning to do.</h3>
+                <p>TIP  :  Këtu mund të shtoni ditë të cilat, për arësyet tuaja personale apo pune nuk ju japin mundësinë të jeni të lirë në këtë orar. Askush prej kolegeve të punës nuk do të mund të shikojë këto të dhëna,ashtu sikurse as Ju te tyre.</p>
+            </div>
+            @Html.AntiForgeryToken()
+          
+
+            <div class="wow fadeInUp col-md-5 col-sm-5" data-wow-delay="1s">
+              
+
+
+
+                    @(Html.Kendo().DatePicker()
+                                            .Name("RestrainDate")
+                                            .HtmlAttributes(new { @class = "form-control", @placeholder = "Data", style = "" })
+                                            .Format("dd/MM/yyyy")
+                    )
+
+                    @Html.ValidationMessage("RestrainDate", "", new { @class = "text-danger" })
+
+
+                   @Html.CheckBoxFor(model => model.all_day)
+                           
+
+
+                <div id="Hours">
+
+                    @(Html.Kendo().TimePickerFor(model => model.starting_hour)
+                                    .HtmlAttributes(new { @class = "form-control", @placeholder = "Ora e fillimit" })
+                                    .Culture("de-DE")
+                                    .Min("8:00")
+                                    .Max("20:00")
+                                    .Events(e => e.Change("startChange"))
+
+                    )
+                    @Html.ValidationMessageFor(m => m.starting_hour, "", new { @class = "text-danger" })
+
+
+                    @(Html.Kendo().TimePickerFor(model => model.ending_hour)
+                                        .HtmlAttributes(new { @class = "form-control", @placeholder = "Ora e perfundimit", style = "height: 27px;" })
+                                        .Culture("de-DE")
+                                        .Min("8:00")
+                                        .Max("7:30")
+
+                    )
+                    @Html.ValidationMessageFor(m => m.ending_hour, "", new { @class = "text-danger" })
+
+                    @Html.TextAreaFor(m => m.reason, new { @class = "form-control", @placeholder = "   . . . komente . . ." })
+                    @Html.ValidationMessageFor(m => m.reason, "", new { @class = "text-danger" })
+
+
+                </div>
+
+                <div class="col-md-offset-6 col-md-6 col-sm-offset-1 col-sm-10">
+                    <input name="submit" type="submit" class="form-control" id="submit" value="Shto Kufizimin">
+                </div>
+              
+            </div>
+
+            <div class="col-md-1"></div>
+
+        </div>
+    </div>
+</section>
+}

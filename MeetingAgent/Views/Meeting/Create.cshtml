@@ -1,0 +1,132 @@
+﻿@using MeetingAgent.Models
+@model MeetingAgent.mtg_meeting
+@{
+    ViewBag.Title = "KRijo Takim";
+}
+<script src="@Url.Content("~/Scripts/Meeting/Meeting.js")" type="text/javascript" defer="defer"></script>
+
+
+    
+
+<!-- =========================
+            OVERVIEW SECTION
+        ============================== -->
+
+
+<style>
+
+    #contact .form-control {
+         border-bottom: none !important; 
+         margin-bottom: 0 !important; 
+    }
+</style>
+
+
+    <section id="contact" class="parallax-section">
+        <div class="container">
+            <div class="row">
+
+            @using (Html.BeginForm("Create", "Meeting", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            { 
+                <div class="wow fadeInUp col-md-5 col-sm-6" data-wow-delay="0.9s">
+                    <div class="contact_detail">
+                        <div class="section-title">
+                            <h2>Krijo Takim</h2>
+                        </div>
+
+
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                            <div class="">
+                                @Html.TextBoxFor(m => m.place, new { @class = "form-control", @placeholder = "   . . . Vendi ku do te mbahet mbledhja . . .", style = "height: 27px;" })
+                                @Html.ValidationMessageFor(m => m.place, "", new { @class = "text-danger" })
+                            </div>
+
+                            <br />
+
+                            <div class="">
+                                @*@(Html.Kendo().DatePickerFor(model => model.date)
+                                    .HtmlAttributes(new { @class = "form-control", @placeholder = "Data", style = "height: 27px;" })
+                                    .Format("dd/MM/yyyy")
+                                )*@
+
+                                @(Html.Kendo().DatePicker()
+                                        .Name("MeetingDate")
+                                        .HtmlAttributes(new { @class = "form-control", @placeholder = "Data", style = "height: 27px;" })
+                                        .Format("dd/MM/yyyy")
+                                )
+                                @Html.ValidationMessage("MeetingDate", "", new { @class = "text-danger" })
+                            </div>
+
+                            <br />
+
+                            <div class="">
+                                @(Html.Kendo().TimePickerFor(model => model.starting_hour)
+                                    .HtmlAttributes(new { @class = "form-control", @placeholder = "Ora e fillimit", style = "height: 27px;" })
+                                    .Culture("de-DE")
+                                    .Min("8:00")
+                                    .Max("20:00")
+                                    .Events(e => e.Change("startChange"))
+
+                                )
+                                @Html.ValidationMessageFor(m => m.starting_hour, "", new { @class = "text-danger" })
+                            </div>
+
+                            <br />
+
+                            <div class="">
+                                @(Html.Kendo().TimePickerFor(model => model.ending_hour)
+                                        .HtmlAttributes(new { @class = "form-control", @placeholder = "Ora e perfundimit", style = "height: 27px;" })
+                                        .Culture("de-DE")
+                                        .Min("8:00")
+                                        .Max("7:30")
+
+                                )
+                                @Html.ValidationMessageFor(m => m.ending_hour, "", new { @class = "text-danger" })
+                            </div>
+
+                            <br />
+
+                            <div class="">
+                                <button class="btn btn-lg btn-danger smoothScroll wow fadeInUp" data-wow-delay="2.3s" id="choosePersons">Kontrollo Personat</button>
+                            </div>
+
+
+                            
+                            
+                        </div>
+                </div>
+
+                <div id="DivUser" class="wow fadeInUp col-md-5 col-sm-6" data-wow-delay="0.9s" style=" display:none !important">
+                    <div class="contact_detail" style="height: 530px;">
+                        
+                        <div class="alert alert-danger alert-dismissable fade in" id="alertNotSelected" style="display:none">
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                            <strong>Danger!</strong> This alert box could indicate a dangerous or potentially negative action.
+                        </div>
+
+                            <div class=" col-xs-18">
+
+                                @Html.Partial("~/Views/Meeting/_userList.cshtml", (UserViewModelList)ViewBag.ChildModel)
+                            </div>
+
+                        <div class="col-md-6 col-sm-10">
+                            <input name="submit" type="submit" class="form-control" id="submitCreateMeeting" value="Krijo Takim">
+                        </div>
+                            
+                    </div>
+                </div>
+
+
+            }
+
+            </div>
+        </div>
+    </section>
+
+
+
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+    }

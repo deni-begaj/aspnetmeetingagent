@@ -1,0 +1,30 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<!-- =========================
+        INTRO SECTION
+    ============================== -->
+<section id="intro" class="parallax-section">
+    <div class="container">
+        <div class="row">
+
+            <div class="col-md-12 col-sm-12">
+                <h3 class="wow bounceIn" data-wow-delay="0.9s">Lets we all meet together with</h3>
+                <h1 class="wow fadeInUp" data-wow-delay="1.6s">Meeting Agent</h1>
+@if (Request.IsAuthenticated)
+{
+                <a href="@Url.Action("Index", "Meeting")" class="btn btn-lg btn-default smoothScroll wow fadeInUp hidden-xs" data-wow-delay="2.3s">TAKIMET E MIA</a>
+                <a href="@Url.Action("Create", "Meeting")" class="btn btn-lg btn-danger smoothScroll wow fadeInUp" data-wow-delay="2.3s">LER TAKIM</a>
+}
+else
+{
+                <a href="@Url.Action("Register", "Account")" class="btn btn-lg btn-success smoothScroll wow fadeInUp" data-wow-delay="2.3s">Regjistrohu</a>
+                <a href="@Url.Action("Login", "Account")" class="btn btn-lg btn-danger smoothScroll wow fadeInUp" data-wow-delay="2.3s">Lidhu</a>
+}
+            </div>
+
+
+        </div>
+    </div>
+</section>

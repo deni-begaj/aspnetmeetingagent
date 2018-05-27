@@ -1,0 +1,38 @@
+﻿
+@using MeetingAgent.Models
+@model  MeetingAgent.Models.UserViewModelList
+
+
+@(Html.Kendo().Grid<UserViewModel>(Model.UserViewModelListRels)
+                    .Name("UserViewList")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.IsChecked).Title("Zgjidh").Width("10px").ClientTemplate("<input type='checkbox'  # if (IsChecked==1) { #checked='checked' class='chkbxHasAccess k-button k-button-icontext k-grid-reverseTransaction glyphicon glyphicon-ok' #}else{ #class='chkbxHasAccess k-button k-button-icontext k-grid-reverseTransaction glyphicon glyphicon-minus'#}  # name='UserViewModelListRels[#= indexAccess(data)#].IsChecked' onclick='markTransactionDetailAsChecked(this)' value='#= IsChecked #' />").HtmlAttributes(new { style = "text-align: center" });
+
+                        columns.Bound(p => p.Identification).Title("Id").Hidden().ClientTemplate("#= Identification # <input type='hidden' name='UserViewModelListRels[#= indexAccess(data)#].Identification' value='#= Identification #' />");
+                        columns.Bound(p => p.FullName).Title("Emri");
+                        columns.Bound(p => p.Email).Title("Email");
+
+
+
+                    })
+
+                    .NoRecords(nor => nor.Template("<div class='empty-grid'></div>"))
+                    .Navigatable(nvg => nvg.Enabled(true))
+
+                    .Resizable(res => res.Columns(true))
+                    .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .PageSize(20)
+                        .Read(read => read.Action("GetUsers", "Meeting"))
+                        .Sort(sort => { sort.Add(p => p.Identification).Descending(); })
+                        .Model(model => {
+                            model.Id(p => p.Identification); })
+                        .ServerOperation(true)
+
+                        )
+                    .Events(events => events.DataBound("CheckIfEmpty"))
+
+
+)

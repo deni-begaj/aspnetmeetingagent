@@ -1,0 +1,388 @@
+﻿@using MeetingAgent.Models
+@model VMeetingList
+@{
+    ViewBag.Title = "Shiko Takimet";
+}
+<script src="@Url.Content("~/Scripts/Meeting/Meeting.js")" type="text/javascript" defer="defer"></script>
+
+
+<style>
+    #program .form-control {
+        border-bottom: none !important;
+        margin-bottom: 0 !important;
+    }
+</style>
+
+<!-- =========================
+    PROGRAM SECTION
+============================== -->
+@using (Html.BeginForm("Index", "Meeting", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+<section id="program" class="parallax-section">
+    <div class="container">
+        <div class="row">
+
+            <div class="wow fadeInUp col-md-12 col-sm-12" data-wow-delay="0.6s">
+                <div class="section-title">
+                    <h2>Takimet e mia</h2>
+                    <p>TIP: Per te aprovuar nje takim zgjidh APROVO ne te kundert REFUZO!</p>
+                </div>
+            </div>
+
+            <div class="wow fadeInUp col-md-10 col-sm-10" data-wow-delay="0.9s">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="active"><a href="#fday" aria-controls="fday" role="tab" data-toggle="tab">Takimet Ne Pritje te Aprovimit</a></li>
+                    <li><a href="#sday" aria-controls="sday" role="tab" data-toggle="tab">Takimet e Tjera</a></li>
+                    <li><a href="#tday" aria-controls="tday" role="tab" data-toggle="tab">Takimet e Refuzuara</a></li>
+                </ul>
+                <!-- tab panes -->
+                <div class="tab-content">
+
+                    <div role="tabpanel" class="tab-pane active" id="fday">
+                      
+                        <div class=" col-xs-18">
+
+                 @(Html.Kendo().Grid<v_meeting>(Model.VMeetingModelListRels)
+                .Name("MeetingListForApproval")
+                .Columns(columns =>
+                {
+                    columns.Bound(p => p.IsApproved).Title("Aprovo").Width("10px").ClientTemplate("<input type='checkbox'  # if (IsApproved==1) { #checked='checked' class='chkbxHasAccess k-button k-button-icontext k-grid-reverseTransaction glyphicon glyphicon-ok' #}else{ #class='chkbxHasAccess k-button k-button-icontext k-grid-reverseTransaction glyphicon glyphicon-minus'#}  # name='VMeetingModelListRels[#= indexAccessForApproval(data)#].IsApproved' onclick='markMeetingAsApproved(this)' value='#= IsApproved #' />").HtmlAttributes(new { style = "text-align: center" });
+                    columns.Bound(p => p.IsRejected).Title("Refuzo").Width("10px").ClientTemplate("<input type='checkbox'  # if (IsRejected==1) { #checked='checked' class='chkbxHasAccess k-button k-button-icontext k-grid-reverseTransaction glyphicon glyphicon-ok' #}else{ #class='chkbxHasAccess k-button k-button-icontext k-grid-reverseTransaction glyphicon glyphicon-minus'#}  # name='VMeetingModelListRels[#= indexAccessForApproval(data)#].IsRejected' onclick='markMeetingAsRejected(this)' value='#= IsRejected #' />").HtmlAttributes(new { style = "text-align: center" });
+
+                    columns.Bound(p => p.RelId).Title("Id").Hidden().ClientTemplate("#= RelId # <input type='hidden' name='VMeetingModelListRels[#= indexAccessForApproval(data)#].RelId' value='#= RelId #' />");
+                    columns.Bound(p => p.place).Title("Vendi");
+                    columns.Bound(p => p.MeetingDate).Title("Data e Takimit").Format("{0:dd/MM/yyyy}");
+                    columns.Bound(p => p.MeetingStartHour).Title("Ora e Fillimit").Hidden();
+                    columns.Bound(p => p.MeetingEndHour).Title("Ora e Mbarimit").Hidden();
+                    columns.Bound(p => p.PhoneNumber).Title("Krijuar nga");
+                    columns.Bound(p => p.is_active).Hidden();
+
+
+
+                })
+
+                .NoRecords(nor => nor.Template("<div class='empty-grid'></div>"))
+                .Navigatable(nvg => nvg.Enabled(true))
+                 .ClientDetailTemplateId("template1")
+                .Resizable(res => res.Columns(true))
+                .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .PageSize(20)
+                    .Read(read => read.Action("GetMeetingForApproval", "Meeting"))
+                    .Sort(sort => { sort.Add(p => p.RelId).Descending(); })
+                    .Model(model =>
+                    {
+                        model.Id(p => p.RelId);
+                    })
+                    .ServerOperation(true)
+
+                    )
+                .Events(events => events.DataBound("CheckIfEmpty"))
+
+
+                            )
+                        </div>
+
+
+
+    <script id="template1" type="text/kendo-tmpl">
+        @(Html.Kendo().TabStrip()
+                .Name("tabStrip_#=RelId#")
+                .SelectedIndex(0)
+                .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+                .Items(items =>
+                {
+                    items.Add().Text(" #= dateformat(MeetingDate)  #").Content(
+                    "<div class='custom-template'>" +
+                        "<div class='row no-margin'>" +
+                            "<div class='col-xs-11'>" +
+
+                                "<div class='row'><label class='col-xs-6'></label></div>" +
+                                "<div class='row'><label class='col-xs-6'>Krijuar nga:</label><span> #= PhoneNumber  #</span></div>" +
+                                "<div class='row'><label class='col-xs-6'>Vendi:</label><span>#=place #</span></div>" +
+                                "<div class='row'><label class='col-xs-6'>Ora e Fillimit:</label><span>#= timeformat(MeetingStartHour) #</span></div>" +
+                                "<div class='row'><label class='col-xs-6'>Ora e mbarimit:</label><span> #= timeformat(MeetingEndHour)  #</span></div>" +
+                              
+                            "</div>" +
+
+                       "</div>" +
+                   "</div>"
+                    );
+                })
+        .ToClientTemplate())
+                        </script>
+
+
+
+                        <div class="col-md-6 col-sm-10">
+                            <input name="submit" type="submit" class="btn btn-lg btn-danger smoothScroll wow fadeInUp" data-wow-delay="2.3s" id="submitIndexForm" value="Ruaj Ndryshimet">
+                        </div>
+
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane" id="sday">
+
+                        <div class=" col-xs-18">
+
+                            @(Html.Kendo().Grid<v_meeting>()
+                .Name("MeetingListApproved")
+                .Columns(columns =>
+                {
+                    columns.Bound(p => p.RelId).Title("Id").Hidden();
+                    columns.Bound(p => p.place).Title("Vendi");
+                    columns.Bound(p => p.MeetingDate).Title("Data e Takimit").Format("{0:dd/MM/yyyy}");
+                    columns.Bound(p => p.MeetingStartHour).Title("Ora e Fillimit").Hidden();
+                    columns.Bound(p => p.MeetingEndHour).Title("Ora e Mbarimit").Hidden();
+                    columns.Bound(p => p.PhoneNumber).Title("Krijuar nga");
+                    columns.Bound(p => p.is_active).Hidden();
+
+
+
+                })
+
+                .NoRecords(nor => nor.Template("<div class='empty-grid'></div>"))
+                .Navigatable(nvg => nvg.Enabled(true))
+                .ClientDetailTemplateId("template2")
+                .Resizable(res => res.Columns(true))
+                .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .PageSize(20)
+                    .Read(read => read.Action("GetMeetingApproved", "Meeting"))
+                    .Sort(sort => { sort.Add(p => p.RelId).Descending(); })
+                    .Model(model =>
+                    {
+                        model.Id(p => p.RelId);
+                    })
+                    .ServerOperation(true)
+
+                    )
+                .Events(events => events.DataBound("CheckIfEmpty"))
+
+
+                            )
+
+                <script id="template2" type="text/kendo-tmpl">
+                    @(Html.Kendo().TabStrip()
+                        .Name("tabStrip_#=RelId#")
+                        .SelectedIndex(0)
+                        .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+                        .Items(items =>
+                        {
+                            items.Add().Text(" #= dateformat(MeetingDate)  #").Content(
+                            "<div class='custom-template'>" +
+                                "<div class='row no-margin'>" +
+                                    "<div class='col-xs-11'>" +
+
+                                        "<div class='row'><label class='col-xs-6'></label></div>" +
+                                        "<div class='row'><label class='col-xs-6'>Krijuar nga:</label><span> #= PhoneNumber  #</span></div>" +
+                                        "<div class='row'><label class='col-xs-6'>Vendi:</label><span>#=place #</span></div>" +
+                                        "<div class='row'><label class='col-xs-6'>Ora e Fillimit:</label><span>#= timeformat(MeetingStartHour) #</span></div>" +
+                                        "<div class='row'><label class='col-xs-6'>Ora e mbarimit:</label><span> #= timeformat(MeetingEndHour)  #</span></div>" +
+                                        "<div class='row'><label class='col-xs-6'>Statusi:</label><span>#= checkStatus(is_active) #</span></div>" +
+
+                                    "</div>" +
+
+                                "</div>" +
+                            "</div>"
+                            );
+                        })
+                .ToClientTemplate())
+                </script>
+
+                        </div>
+
+                </div>
+
+                    <div role="tabpanel" class="tab-pane" id="tday">
+                        <div class=" col-xs-18">
+
+                            @(Html.Kendo().Grid<v_meeting>()
+                .Name("MeetingListRejected")
+                .Columns(columns =>
+                {
+                    columns.Bound(p => p.RelId).Title("Id").Hidden();
+                    columns.Bound(p => p.place).Title("Vendi");
+                    columns.Bound(p => p.MeetingDate).Title("Data e Takimit").Format("{0:dd/MM/yyyy}");
+                    columns.Bound(p => p.MeetingStartHour).Title("Ora e Fillimit").Format("{0:dd/MM/yyyy}");
+                    columns.Bound(p => p.MeetingEndHour).Title("Ora e Mbarimit").Format("{0:dd/MM/yyyy}");
+                    columns.Bound(p => p.PhoneNumber).Title("Krijuar nga");
+
+
+
+                })
+
+                .NoRecords(nor => nor.Template("<div class='empty-grid'></div>"))
+                .Navigatable(nvg => nvg.Enabled(true))
+                .ClientDetailTemplateId("template3")
+                .Resizable(res => res.Columns(true))
+                .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .PageSize(20)
+                    .Read(read => read.Action("GetMeetingRejected", "Meeting"))
+                    .Sort(sort => { sort.Add(p => p.RelId).Descending(); })
+                    .Model(model =>
+                    {
+                        model.Id(p => p.RelId);
+                    })
+                    .ServerOperation(true)
+
+                    )
+                .Events(events => events.DataBound("CheckIfEmpty"))
+
+
+                            )
+                            <script id="template3" type="text/kendo-tmpl">
+                                @(Html.Kendo().TabStrip()
+                        .Name("tabStrip_#=RelId#")
+                        .SelectedIndex(0)
+                        .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+                        .Items(items =>
+                        {
+                            items.Add().Text(" #= dateformat(MeetingDate)  #").Content(
+                            "<div class='custom-template'>" +
+                                "<div class='row no-margin'>" +
+                                    "<div class='col-xs-11'>" +
+
+                                        "<div class='row'><label class='col-xs-6'></label></div>" +
+                                        "<div class='row'><label class='col-xs-6'>Krijuar nga:</label><span> #= PhoneNumber  #</span></div>" +
+                                        "<div class='row'><label class='col-xs-6'>Vendi:</label><span>#=place #</span></div>" +
+                                        "<div class='row'><label class='col-xs-6'>Ora e Fillimit:</label><span>#= timeformat(MeetingStartHour) #</span></div>" +
+                                        "<div class='row'><label class='col-xs-6'>Ora e mbarimit:</label><span> #= timeformat(MeetingEndHour)  #</span></div>" +
+
+                                    "</div>" +
+
+                                "</div>" +
+                            "</div>"
+                            );
+                        })
+                .ToClientTemplate())
+                            </script>
+                        </div>
+                    </div>
+
+            </div>
+        </div>
+        </div>
+        </div>
+</section>
+}
+
+<section id="faq" class="parallax-section">
+    <div class="container">
+        <div class="row">
+
+            <!-- Section title
+            ================================================== -->
+            <div class="wow bounceIn col-md-offset-2 col-md-8 col-sm-offset-1 col-sm-10 text-center">
+                <div class="section-title">
+                    <h2>Kontrollo Takimet e Krijuara nga ty</h2>
+                    <p>Ne kete pjese mund te kontrolloni ecurine me konfirmimet ne pjesemarrje ne mbledhje, refuzimet dhe ata te cilet ende nuk jane pergjigjur nder koleget tuaj.</p>
+                </div>
+            </div>
+
+            <div class="wow fadeInUp col-md-offset-1 col-md-10 col-sm-offset-1 col-sm-10" data-wow-delay="0.9s">
+                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="headingOne">
+                            <h4 class="panel-title">
+                                <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    Lista e Statusit te Takimeve
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                            <div class="panel-body">
+
+
+                                @(Html.Kendo().Grid<v_check_meeting>()
+                            .Name("CheckMeetingList")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.RElId).Title("Id").Hidden();
+                                columns.Bound(p => p.place).Title("Takimi");
+                                columns.Bound(p => p.date).Title("Data e Takimit").Format("{0:dd/MM/yyyy}");
+                                columns.Bound(p => p.Username).Title("Emri i Kolegut");
+                               // columns.Bound(p => p.status_id).Title("Statusi");
+
+
+
+                            })
+
+                            .NoRecords(nor => nor.Template("<div class='empty-grid'></div>"))
+                            .Navigatable(nvg => nvg.Enabled(true))
+                             .ClientDetailTemplateId("template5")
+                            .Resizable(res => res.Columns(true))
+                            .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(20)
+                                .Read(read => read.Action("GetCheckMeeting", "Meeting"))
+                                .Sort(sort => { sort.Add(p => p.RElId).Descending(); })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.RElId);
+                                })
+                                .ServerOperation(true)
+
+                                )
+
+
+                                )
+
+
+
+                                <script id="template5" type="text/kendo-tmpl">
+                                    @(Html.Kendo().TabStrip()
+                                .Name("tabStrip_#=RElId#")
+                                .SelectedIndex(0)
+                                .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+                                .Items(items =>
+                                {
+                                    items.Add().Text(" #= dateformat(date)  #").Content(
+                                    "<div class='custom-template'>" +
+                                        "<div class='row no-margin'>" +
+                                            "<div class='col-xs-11'>" +
+
+                                                "<div class='row'><label class='col-xs-6'></label></div>" +
+                                                "<div class='row'><label class='col-xs-6'>Takimi :</label><span>#= place #</span></div>" +
+                                                "<div class='row'><label class='col-xs-6'>Data e Krijimit :</label><span> #= dateformat(created_date)  #</span></div>" +
+                                               "<div class='row'><label class='col-xs-6'>Kolegu :</label><span>#= Username #</span></div>" +
+                                                "<div class='row'><label class='col-xs-6'>Statusi :</label><span>#= checkStatusRel(status_id) #</span></div>" +
+
+                                            "</div>" +
+
+                                        "</div>" +
+                                    "</div>"
+                                    );
+                                })
+                        .ToClientTemplate())
+                                </script>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
