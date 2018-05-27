@@ -5,8 +5,7 @@ $("#submitCreateMeeting").click(function () {
     var totalNumber = data.length;
     for (var i = 0; i < totalNumber; i++) {
         var currentDataItem = data[i];
-        debugger;
-        if (dataItem.IsChecked != false) {
+        if (currentDataItem.IsChecked != false) {
             return true;
         }
     }
